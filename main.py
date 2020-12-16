@@ -23,7 +23,6 @@
 import numpy as np
 import seaborn as sn
 import matplotlib.pyplot as plt
-import matplotlib.axes as ax
 from matplotlib.ticker import MaxNLocator
 import pandas as pd
 import os as os
@@ -42,8 +41,6 @@ from sklearn import decomposition
 from sklearn import preprocessing
 from sklearn import manifold
 from sklearn import cluster
-import matplotlib.cm as cm
-from matplotlib import offsetbox
 import umap
 
 ############################
@@ -88,8 +85,11 @@ plt.savefig(DatasetName + '_correl_heatmap.png', dpi=100)
 plt.close()
 
 ######################
-##Remove features redundancy (Pearson > 0.95) to create a depurated data sample
+##Removed 7/30 features showing Pearson > 0.95 to at least another feature in the dataset
 bcancer_data_dep95_df = bcancer_data_df.iloc[:, [0,1,4,5,6,7,8,9,10,11,14,15,16,17,18,19,21,24,25,26,27,28,29]]
+
+print("Breast Cancer 'all' dataset :", bcancer_data_df.shape)
+print("Breast Cancer 'dep95' dataset :", bcancer_data_df.shape)
 
 figure = plt.gcf()
 figure.set_size_inches(8, 7)
@@ -114,7 +114,10 @@ facebook_target_df = facebook_df.iloc[:,1:2]
 ## As per assignment instructions, using only the firt 1000 points
 facebook_data_df = facebook_data_df.iloc[0:1000, :]
 facebook_target_df = facebook_target_df.iloc[0:1000, :]
+
 facebook_target_names_df = facebook_target_df.copy()
+
+print("Facebook dataset :", facebook_data_df.shape)
 
 ######################
 ##Exploratory Data Analysis
@@ -199,6 +202,13 @@ for i in SamplesToProcess_dic:
 
     print("\n**** STEP 1: ", sample_name, " ****\n")
 
+    ##Subset bcancer.data for test and train subsets
+    X = sample_data_df
+    y = sample_target_df.iloc[:, 0]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=5)
+    print(f'train: {X_train.size}')
+    print(f'test: {X_test.size}')
+
     ######################
     ##K nearest neighbour
     ######################
@@ -206,13 +216,6 @@ for i in SamplesToProcess_dic:
 
     ##Initialize classifier, weight("uniform")
     knn = KNeighborsClassifier(n_neighbors=2, weights='distance')
-
-    ##Subset bcancer.data for test and train subsets
-    X = sample_data_df
-    y = sample_target_df.iloc[:, 0]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=5)
-    print(f'train: {X_train.size}')
-    print(f'test: {X_test.size}')
 
     ##Fitting the model with the data
     knn.fit(X_train, y_train)
@@ -267,13 +270,6 @@ for i in SamplesToProcess_dic:
     # TypeError: fit() missing 1 required positional argument: 'y'
     logreg = LR()
 
-    X = sample_data_df
-    y = sample_target_df.iloc[:, 0]
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=5)
-    print(f'train: {X_train.size}')
-    print(f'test: {X_test.size}')
-
     ##Fitting the model with the data
     logreg.fit(X_train, y_train)
 
@@ -302,12 +298,6 @@ for i in SamplesToProcess_dic:
     # Initialize classifier
     gnb = GaussianNB()
 
-    X = sample_data_df
-    y = sample_target_df.iloc[:, 0]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=5)
-    print(f'train: {X_train.size}')
-    print(f'test: {X_test.size}')
-
     # Train our classifier
     model = gnb.fit(X_train, y_train)
 
@@ -334,12 +324,6 @@ for i in SamplesToProcess_dic:
 
     # Initialize classifier
     RFclf = RandomForestClassifier(max_depth=2, random_state=0)
-
-    X = sample_data_df
-    y = sample_target_df.iloc[:, 0]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=5)
-    print(f'train: {X_train.size}')
-    print(f'test: {X_test.size}')
 
     RFclf.fit(X_train, y_train)
     y_pred = RFclf.predict(X_test)
